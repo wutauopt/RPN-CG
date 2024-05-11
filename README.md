@@ -1,2 +1,3 @@
 # RPN-CG
-hello word！。。。。
+MATLAB implementation of RPN-CG
+By Xiamen University

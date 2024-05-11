@@ -1,2 +1,2 @@
 # RPN-CG
-hello word
+hello word！。。。。

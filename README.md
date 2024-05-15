@@ -16,6 +16,6 @@ Wutao Si
 modified by 
 Wen Huang
 
-If you have any questions, please email: siwutao@stu.xmu.edu.cn or wen.huang@xmu.edu.cn
+If you have any questions, please email: wutau.math@gmail.com or wen.huang@xmu.edu.cn
 
 

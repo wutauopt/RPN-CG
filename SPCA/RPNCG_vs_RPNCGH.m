@@ -1,11 +1,12 @@
 clear;clc
 close all;
 
-n = 1000; % n dimension
+n = 600; % n dimension
 r = 10; % r number of column
 mu = .8; % mu sparse parameter
 
 seed = round(rand() * 10000000);
+seed = 1;
 fprintf('seed:%d\n', seed);
 rng(seed);
 % generate the random data matrix A
@@ -15,16 +16,19 @@ A = A - repmat(mean(A,1),m,1);
 A = normc(A);
 
 % random initialization
-[phi_init, ~] = svd(randn(n,r),0);
-x0 = phi_init;
+% [phi_init, ~] = svd(randn(n,r),0);
+% x0 = phi_init;
+[U, S, V] = svd(A', 0);
+x0 = U(:, 1 : r);
 
 epsilon_set = [1e-1;1e-2;1e-3;1e-4;1e-5]; % mu
-randnum = 10; 
+% epsilon_set = [1e-1;]; % mu
+randnum = 20;
 
 tab = zeros(length(epsilon_set) * 2, 7, randnum);
 
 maxiter = 5000;
-outputgap = 10;
+outputgap = 100;
 
 for i = 1: length(epsilon_set)
     option.epsilon = epsilon_set(i);
@@ -33,28 +37,43 @@ for i = 1: length(epsilon_set)
         row = (i-1)*2;
         tab(row + 1, 2, j) = option.epsilon; tab(row + 2, 2, j) = option.epsilon; 
         
-        %% Drive_RPN-CG
-        option.n = n; option.r = r; option.mu = mu;
-        option.tol = 1e-8*n*r;
-        option.maxiter = maxiter;
-        option.x0 = x0;
-        option.stop = 1e-10;
-        option.outputgap = outputgap;
-        [x_rpncg, fs_rpncg, nv_rpncg, iter_rpncg, sparsity_rpncg, time_rpncg, iter_time_rpncg] = driver_rpncg(A, option);
-        Fs_rpncg = fs_rpncg(end);
-        Ns_rpncg = nv_rpncg(end);
-        tab(row + 1, 3, j) = iter_rpncg;        tab(row + 1, 4, j) = Fs_rpncg;  
-        tab(row + 1, 5, j) = Ns_rpncg;          tab(row + 1, 6, j) = time_rpncg;    
-        tab(row + 1, 7, j) = sparsity_rpncg;
+%         sameminimizer = 0;
+        
+%         while sameminimizer == 0
+%             A = randn(m,n);
+%             A = A - repmat(mean(A,1),m,1);
+%             A = normc(A);
+%             [U, S, V] = svd(A', 0);
+%             x0 = U(:, 1 : r);
+            %% Drive_RPN-CG
+            option.n = n; option.r = r; option.mu = mu;
+            option.tol = 1e-8*n*r;
+            option.maxiter = maxiter;
+            option.x0 = x0;
+            option.stop = 1e-10;
+            option.outputgap = outputgap;
+            [x_rpncg, fs_rpncg, nv_rpncg, iter_rpncg, sparsity_rpncg, time_rpncg, iter_time_rpncg] = driver_rpncg(A, option);
+            Fs_rpncg = fs_rpncg(end);
+            Ns_rpncg = nv_rpncg(end);
+            tab(row + 1, 3, j) = iter_rpncg;        tab(row + 1, 4, j) = Fs_rpncg;  
+            tab(row + 1, 5, j) = Ns_rpncg;          tab(row + 1, 6, j) = time_rpncg;    
+            tab(row + 1, 7, j) = sparsity_rpncg;
 
-        %% Drive_RPN-CGH
-        [x_rpncgh, fs_rpncgh, nv_rpncgh, iter_rpncgh, sparsity_rpncgh, time_rpncgh, iter_time_rpncgh] = driver_rpn_cgh(A, option);
-        Fs_rpncgh = fs_rpncgh(end);
-        Ns_rpncgh = nv_rpncgh(end);
-        tab(row + 2, 3, j) = iter_rpncgh;        tab(row + 2, 4, j) = Fs_rpncgh;  
-        tab(row + 2, 5, j) = Ns_rpncgh;          tab(row + 2, 6, j) = time_rpncgh;    
-        tab(row + 2, 7, j) = sparsity_rpncgh;
-    
+            %% Drive_RPN-CGH
+            [x_rpncgh, fs_rpncgh, nv_rpncgh, iter_rpncgh, sparsity_rpncgh, time_rpncgh, iter_time_rpncgh] = driver_rpn_cgh(A, option);
+            Fs_rpncgh = fs_rpncgh(end);
+            Ns_rpncgh = nv_rpncgh(end);
+            tab(row + 2, 3, j) = iter_rpncgh;        tab(row + 2, 4, j) = Fs_rpncgh;  
+            tab(row + 2, 5, j) = Ns_rpncgh;          tab(row + 2, 6, j) = time_rpncgh;    
+            tab(row + 2, 7, j) = sparsity_rpncgh;
+
+            [U, S, V] = svd(x_rpncgh' * x_rpncg);
+            if norm(x_rpncgh - x_rpncg * V * U', 'fro') < 1e-2
+                sameminimizer = 1;
+            else
+                error('converge to different minimizers!');
+            end
+%         end
     end
 end
 

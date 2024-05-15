@@ -6,6 +6,7 @@ This file includes the codes that reproduce the experimental results in the pape
    A Riemannian Proximal Newton-CG Method 
 
 The files in folder CM are used to reproduce results of CM problems.
+
 The files in folder SPCA are used to reproduce results of sparse PCA problems.
 
 

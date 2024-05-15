@@ -3,7 +3,7 @@ MATLAB implementation of RPN-CG method
 
 
 This file includes the codes that reproduce the experimental results in the paper:
-   A Riemannian Proximal Newton-CG Method 
+   A Riemannian Proximal Newton-CG Method (https://arxiv.org/abs/2304.04032)
 
 The files in folder CM are used to reproduce results of CM problems.
 
